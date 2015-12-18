@@ -70,3 +70,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+Assets/AdditionalExamples/
+Assets/Gamelogic/
