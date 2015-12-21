@@ -71,7 +71,7 @@
 
             return path;
         }
-        
+
         private float CalculateCost(RectPoint p, RectPoint q)
         {
             RectTileGridBuilder builder = GetComponent<RectTileGridBuilder>();
@@ -143,11 +143,15 @@
 
         public void OnRightClick(RectPoint clickedPoint)
         {
-            Debug.LogFormat("Clicked {0}", clickedPoint);
+            //Debug.LogFormat("Clicked {0}", clickedPoint);
 
             SetStartOrGoal(clickedPoint);
             ClearPath();
             UpdatePath();
+            //DrawLine();
+            //DrawLine2();
+
+            //Debug.LogFormat("In Line of Sight = {0}", IsInLineOfSight(start, goal));
         }
 
         private void UpdatePath()
@@ -163,16 +167,14 @@
 
             Color color = new Color(1.0f, 1.0f, 0.0f, 0.5f);
 
+            if (!IsInLineOfSight(start, goal))
+                color = new Color(1.0f, 0.0f, 0.0f, 0.5f);
+
             foreach (var point in path)
             {
                 //grid[point].Color = Color.black;
                 builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
             }
-        }
-
-        void OnMouseDown()
-        {
-            Debug.Log("Clicked...");
         }
 
         void ClearPath()
@@ -184,6 +186,140 @@
             {
                 builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
             }
+        }
+
+        /// <summary>
+        /// Draws lines via DDA.  Does NOT support vertical lines..
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<RectPoint> DrawLine()
+        {
+            RectTileGridBuilder builder = GetComponent<RectTileGridBuilder>();
+            Color color = new Color(1.0f, 1.0f, 0.0f, 0.5f);
+
+            var line = new List<RectPoint>();
+
+            float dydx = (goal.Y - start.Y) / (goal.X - start.X);
+            float y = start.Y;
+            for (int x = start.X; x <= goal.X; x++)
+            {
+                var point = new RectPoint(x, Mathf.RoundToInt(y));
+                line.Add(point);
+                builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
+
+                y = y + dydx;
+            }
+
+            return line;
+        }
+
+        IEnumerable<RectPoint> DrawLine2()
+        {
+            RectTileGridBuilder builder = GetComponent<RectTileGridBuilder>();
+            Color color = new Color(1.0f, 1.0f, 0.0f, 0.5f);
+
+            var line = new List<RectPoint>();
+
+            int dy = goal.Y - start.Y;
+            int dx = goal.X - start.X;
+            int stepx, stepy;
+
+            if (dy < 0) { dy = -dy; stepy = -1; } else { stepy = 1; }
+            if (dx < 0) { dx = -dx; stepx = -1; } else { stepx = 1; }
+            dy <<= 1;        // dy is now 2*dy
+            dx <<= 1;        // dx is now 2*dx
+
+            float x = start.X;
+            float y = start.Y;
+
+            //drawpixel(x1, y1, color);
+            var point = new RectPoint(start.X, start.Y);
+            line.Add(point);
+            builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
+
+            if (dx > dy)
+            {
+                int fraction = dy - (dx >> 1);  // same as 2*dy - dx
+                while (x != goal.X)
+                {
+                    if (fraction >= 0)
+                    {
+                        y += stepy;
+                        fraction -= dx;          // same as fraction -= 2*dx
+                    }
+                    x += stepx;
+                    fraction += dy;              // same as fraction -= 2*dy
+
+                    //drawpixel(x1, y1, color);
+                    point = new RectPoint(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
+                    line.Add(point);
+                    builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
+                }
+            }
+            else
+            {
+                int fraction = dx - (dy >> 1);
+                while (y != goal.Y)
+                {
+                    if (fraction >= 0)
+                    {
+                        x += stepx;
+                        fraction -= dy;
+                    }
+                    y += stepy;
+                    fraction += dx;
+
+                    //drawpixel(x1, y1, color);
+                    point = new RectPoint(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
+                    line.Add(point);
+                    builder.Grid[point].transform.FindChild("Sprite").GetComponent<SpriteRenderer>().color = color;
+                }
+            }
+
+            return line;
+        }
+
+        public bool IsInLineOfSight(RectPoint viewer, RectPoint target)
+        {
+            RectTileGridBuilder builder = GetComponent<RectTileGridBuilder>();
+            return IsInLineOfSight(builder.Grid[viewer].transform.position, builder.Grid[target].transform.position);
+        }
+
+        public static bool IsInLineOfSight(Vector3 viewer, Vector3 target)
+        {
+            bool inLineOfSight = false;
+
+            var direction = target - viewer;
+            var distance = direction.magnitude;
+            direction.Normalize();
+
+            var hit = Physics2D.Raycast(new Vector2(viewer.x, viewer.y), new Vector2(direction.x, direction.y), distance);
+
+            if (hit.collider != null)
+            {
+                // something was in the way, therefore NOT in line of sight
+                Debug.Log(hit.collider.name);
+            }
+            else
+            {
+                // the ray didn't hit anything, so it IS in the line of sight
+                inLineOfSight = true;
+            }
+
+            return inLineOfSight;
+        }
+
+        void OnDrawGizmos()
+        {
+            //if (Application.isPlaying)
+            Gizmos.color = Color.blue;
+            RectTileGridBuilder builder = GetComponent<RectTileGridBuilder>();
+            if (builder != null)
+            {
+                var origin = builder.Grid[start].transform.position;
+                var target = builder.Grid[goal].transform.position;
+                Gizmos.DrawRay(origin, target - origin);
+            } 
         }
     }
 }
