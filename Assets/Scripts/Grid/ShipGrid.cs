@@ -85,7 +85,7 @@
             {
                 // q
                 // p
-                if (pCell.HasTopWall || qCell.HasBottomWall)
+                if (pCell.GetHasTopWall() || qCell.GetHasBottomWall())
                 {
                     cost = float.MaxValue;
                 }
@@ -94,7 +94,7 @@
             {
                 // p
                 // q
-                if (pCell.HasBottomWall || qCell.HasTopWall)
+                if (pCell.GetHasBottomWall() || qCell.GetHasTopWall())
                 {
                     cost = float.MaxValue;
                 }
@@ -102,7 +102,7 @@
             else if (p + RectPoint.East == q)
             {
                 // p q
-                if (pCell.HasRightWall || qCell.HasLeftWall)
+                if (pCell.GetHasRightWall() || qCell.GetHasLeftWall())
                 {
                     cost = float.MaxValue;
                 }
@@ -110,7 +110,7 @@
             else if (p + RectPoint.West == q)
             {
                 // q p
-                if (pCell.HasLeftWall || qCell.HasRightWall)
+                if (pCell.GetHasLeftWall() || qCell.GetHasRightWall())
                 {
                     cost = float.MaxValue;
                 }
