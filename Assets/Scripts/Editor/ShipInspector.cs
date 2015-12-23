@@ -26,7 +26,9 @@ namespace Battlestations
             var modulesProperty = serializedShip.FindProperty("Modules");
 
             float size = (Screen.width - 18) / 7.0f;
-            for (int y = 0; y < ship.ySize; y++)
+
+            // loop backwards in order to display it in the same order it is used in a scene ([0,0] at bottom left) 
+            for (int y = ship.ySize - 1; y >= 0; y--)
             {
                 EditorGUILayout.BeginHorizontal();
                 for (int x = 0; x < ship.xSize; x++)
