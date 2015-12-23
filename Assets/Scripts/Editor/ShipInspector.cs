@@ -37,13 +37,17 @@ namespace Battlestations
                     //EditorGUILayout.PropertyField(moduleProperty, new GUIContent(string.Empty), false, GUILayout.Width(size), GUILayout.Height(size));
 
                     Texture2D texture = ship[x, y] != null ? ship[x, y].Texture : null;
-                    DrawModule(texture, string.Format("{0},{1}", x, y), size, size);
+                    Module droppedModule = DrawModule(texture, string.Format("{0},{1}", x, y), size, size);
+                    if (droppedModule != null)
+                    {
+                        ship[x, y] = droppedModule;
+                    }
                 }
                 EditorGUILayout.EndHorizontal();
             }
         }
 
-        private Object DrawModule(Texture2D texture, string text, float width, float height)
+        private Module DrawModule(Texture2D texture, string text, float width, float height)
         {
             Event evt = Event.current;
             Rect dropArea = GUILayoutUtility.GetRect(width, height);
@@ -58,23 +62,28 @@ namespace Battlestations
                         return null;
 
                     Object draggedObject = DragAndDrop.objectReferences.FirstOrDefault();
-                    //Module draggedModule = draggedObject as Module;
+                    GameObject draggedGameObject = draggedObject as GameObject;
+                    Module draggedModule = null;
+                    if (draggedGameObject != null)
+                    {
+                        draggedModule = draggedGameObject.GetComponent<Module>();
+                    }
 
-                    //if (draggedModule != null)
-                    //{
+                    if (draggedModule != null)
+                    {
                         DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                    //}
-                    //else
-                    //{
-                    //    DragAndDrop.visualMode = DragAndDropVisualMode.Rejected;
-                    //}
+                    }
+                    else
+                    {
+                        DragAndDrop.visualMode = DragAndDropVisualMode.Rejected;
+                    }
 
                     if (evt.type == EventType.DragPerform)
                     {
                         DragAndDrop.AcceptDrag();
 
                         Debug.LogFormat("Dropped {0}", draggedObject);
-                        return draggedObject;
+                        return draggedModule;
                     }
                     break;
             }
