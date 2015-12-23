@@ -1,7 +1,7 @@
 ﻿namespace Battlestations
 {
-    using System;
     using System.Collections.Generic;
+    using System.Xml.Linq;
     using UnityEngine;
 
     public class Ship : MonoBehaviour
@@ -56,6 +56,35 @@
         void Update()
         {
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filepath"></param>
+        public void LoadFromFile(string filepath)
+        {
+            // <Ship>
+            //	<Module name="cannon" position="3,4" rotation="90" />
+            // </Ship>
+
+            XDocument shipFile = XDocument.Load(filepath);
+            foreach (var moduleElement in shipFile.Root.Elements())
+            {
+                string name = moduleElement.Attribute("name").Value;
+                string[] position = moduleElement.Attribute("position").Value.Split(',');
+                int x = int.Parse(position[0]);
+                int y = int.Parse(position[1]);
+                float rotation = float.Parse(moduleElement.Attribute("rotation").Value);
+
+                GameObject instance = Instantiate(Resources.Load<GameObject>(name));
+                instance.transform.parent = this.transform;
+                instance.transform.rotation = Quaternion.Euler(0, 0, rotation);
+
+                // TODO: Set position based on the x & y indices.
+
+                this[x, y] = instance.GetComponent<Module>();
+            }
         }
     }
 }
