@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <summary>
+    /// Provides a generic interface for rolling & calculating the probabilities of any number of dice with any number of sides.
+    /// </summary>
     public static class Dice
     {
         /// <summary>
@@ -68,12 +71,12 @@
             }
         }
 
-        // number of possible results = numberOfSides ^ numberOfDice
-        // minimum result = numberOfDice
-        // maximum result = numberOfSides * numberOfDice
-        // probability of a specific number = (numberOfResultsForSpecificNumber) / numberOfPossibleResults
-        // number of results for a specific number = ???
-
+        /// <summary>
+        /// Rolls the specified number of dice with the given number of sides (defaults to 1 6-sided die).
+        /// </summary>
+        /// <param name="numberOfDice">The number of dice to roll.  Defaults to 1.</param>
+        /// <param name="numberOfSides">The number of sides on the dice.  Defaults to 6.</param>
+        /// <returns>The sum of the dice rolls.</returns>
         public static int Roll(int numberOfDice = 1, int numberOfSides = 6)
         {
             int result = 0;
