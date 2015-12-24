@@ -102,7 +102,10 @@
 
             for (int i = minValue; i <= numberOfSides * numberOfDice; i++)
             {
-                possibleResults += CachedFrequencies[numberOfSides][numberOfDice][i];
+                if (i > 0)
+                {
+                    possibleResults += CachedFrequencies[numberOfSides][numberOfDice][i];
+                }
             }
 
             return possibleResults / (float)Math.Pow(numberOfSides, numberOfDice);
