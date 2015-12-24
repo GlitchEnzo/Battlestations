@@ -6,57 +6,51 @@
 
     public static class Dice
     {
+        /// <summary>
+        /// The random number generator used for rolling dice.
+        /// </summary>
         private static Random random;
 
-        private static Random Random
-        {
-            get
-            {
-                if (random == null)
-                {
-                    random = new Random();
-                }
-
-                return random;
-            }
-        }
-
         /// <summary>
-        /// CachedFrequencies[NumberOfSides][NumberOfDice][SpecificNumberToGetFrequencyOf] = frequency
+        /// The cached frequency data for each number from a set of dice with various number of sides.
+        /// Usage = CachedFrequencies[NumberOfSides][NumberOfDice][SpecificNumberToGetFrequencyOf] = FrequencyOfNumber
         /// </summary>
         private static Dictionary<int, Dictionary<int, Dictionary<int, int>>> CachedFrequencies = new Dictionary<int, Dictionary<int, Dictionary<int, int>>>();
 
+        /// <summary>
+        /// Initializes data for the dice evaluation.
+        /// </summary>
         static Dice()
         {
-            //cache 2 6-sided dice frequencies
-            //var twoSixSided = GetFrequenciesByOutcome(2, 6);
-            //var sixSided = new Dictionary<int, Dictionary<int, int>>();
-            //sixSided.Add(2, twoSixSided);
-            //CachedFrequencies.Add(6, sixSided);
+            random = new Random();
 
+            //CacheFrequencies(6, 0);
+            CacheFrequencies(6, 1);
             CacheFrequencies(6, 2);
+            CacheFrequencies(6, 3);
 
             string output = string.Empty;
-            for (int i = 0; i < 6 * 2; i++)
+            foreach (var pair in CachedFrequencies[6][3])
             {
-                output += i + ":" + CachedFrequencies[6][2][i] + "\n";
+                output += pair.Key + ":" + pair.Value + "\n";
             }
-
-            //foreach (var pair in CachedFrequencies[6][2])
-            //{
-            //    output += pair.Key + ":" + pair.Value + "\n";
-            //}
-
             UnityEngine.Debug.Log(output);
         }
 
+        /// <summary>
+        /// Caches the frequencies for each number possible from the given number of dice with the given number of sides.
+        /// </summary>
+        /// <param name="numberOfSides">The number of sides on the dice.</param>
+        /// <param name="numberOfDice">The number of dice to roll.</param>
         private static void CacheFrequencies(int numberOfSides, int numberOfDice)
         {
             if (CachedFrequencies.ContainsKey(numberOfSides))
             {
                 if (CachedFrequencies[numberOfSides].ContainsKey(numberOfDice))
                 {
-                    UnityEngine.Debug.LogWarningFormat("Dice results already cached: Sides={0}, Number={1}", numberOfSides, numberOfDice);
+                    //UnityEngine.Debug.LogWarningFormat("Dice results already cached: Sides={0}, Number={1}", numberOfSides, numberOfDice);
+
+                    // do nothing since the data is already cached.
                 }
                 else
                 {
@@ -80,54 +74,14 @@
         // probability of a specific number = (numberOfResultsForSpecificNumber) / numberOfPossibleResults
         // number of results for a specific number = ???
 
-        private static int[] TwoDice = new[]
-        {
-            0, // 0 - no way to get a 0 with 2 dice
-            0, // 1 - no way to get a 1 with 2 dice
-            1, // 2 - 1  way to get a 2 with 2 dice
-            2, // 3 - 2 ways to get a 3 with 2 dice
-            3, // etc
-            4,
-            5,
-            6, // 7
-            5,
-            4,
-            3,
-            2,
-            1  // 12
-        }; // 36 total possible results (6 * 6)
-
-        private static int[] ThreeDice = new[]
-        {
-            0, // 0 - no way to get a 0 with 3 dice
-            0, // 1 - no way to get a 1 with 3 dice
-            0, // 2 - no way to get a 2 with 3 dice
-            1, // 3 - 1  way to get a 3 with 3 dice
-            3, // etc
-            6,
-            10,
-            15, // 7
-            21,
-            25,
-            27,
-            27,
-            25, // 12
-            21,
-            15,
-            10,
-            6,
-            2,
-            1  // 18
-        }; // 216 possible results (6 * 6 * 6)
-
-        public static int Roll(int numberOfDice = 1)
+        public static int Roll(int numberOfDice = 1, int numberOfSides = 6)
         {
             int result = 0;
 
             for (int i = 0; i < numberOfDice; i++)
             {
-                // minValue is INCLUSIVE, but maxValue is EXCLUSIVE, thus the 1-7
-                result += Random.Next(1, 7);
+                // minValue is INCLUSIVE, but maxValue is EXCLUSIVE, thus the +1
+                result += random.Next(1, numberOfSides + 1);
             }
 
             return result;
@@ -139,52 +93,19 @@
         /// <param name="numberOfDice"></param>
         /// <param name="minValue"></param>
         /// <returns></returns>
-        public static float Probability(int numberOfDice, int minValue)
+        public static float Probability(int numberOfDice, int minValue, int numberOfSides = 6)
         {
-            float probability = 0;
+            // Cache new frequency data if not already cached.
+            CacheFrequencies(numberOfSides, numberOfDice);
 
             int possibleResults = 0;
 
-            switch (numberOfDice)
+            for (int i = minValue; i <= numberOfSides * numberOfDice; i++)
             {
-                case 0:
-                    probability = 0;
-                    break;
-                case 1:
-                    for (int i = minValue; i <= 6; i++)
-                    {
-                        // each number has a 1/6 chance, so simply increment for each one
-                        possibleResults++;
-                    }
-                    probability = possibleResults / 6.0f;
-                    break;
-                case 2:
-                    for (int i = minValue; i <= 12; i++)
-                    {
-                        if (i > 0)
-                        {
-                            possibleResults += TwoDice[i];
-                        }
-                    }
-                    probability = possibleResults / 36.0f;
-                    break;
-                case 3:
-                    for (int i = minValue; i <= 18; i++)
-                    {
-                        if (i > 0)
-                        {
-                            possibleResults += ThreeDice[i];
-                        }
-                    }
-                    probability = possibleResults / 216.0f;
-                    break;
-                default:
-                    UnityEngine.Debug.LogFormat("Unsupported number of dice: {0}", numberOfDice);
-                    probability = 0;
-                    break;
+                possibleResults += CachedFrequencies[numberOfSides][numberOfDice][i];
             }
 
-            return probability;
+            return possibleResults / (float)Math.Pow(numberOfSides, numberOfDice);
         }
 
         /// <summary>
@@ -192,9 +113,9 @@
         /// NOTE: This is completely brute forcing it by actually calculating each possible result.
         /// From here: http://stackoverflow.com/questions/493239/determine-frequency-of-numbers-showing-up-in-dice-rolls
         /// </summary>
-        /// <param name="numberOfDice"></param>
-        /// <param name="numberOfSides"></param>
-        /// <returns></returns>
+        /// <param name="numberOfDice">The number of dice being rolled.</param>
+        /// <param name="numberOfSides">The number of sides on the dice.</param>
+        /// <returns>A dictionary of the frequencies of each number.</returns>
         private static Dictionary<int, int> GetFrequenciesByOutcome(int numberOfDice, int numberOfSides)
         {
             int maxOutcome = (numberOfDice * numberOfSides);
@@ -202,16 +123,27 @@
             for (int i = 0; i <= maxOutcome; i++)
                 outcomeCounts[i] = 0;
 
-            foreach (int possibleOutcome in GetAllOutcomes(0, numberOfDice, numberOfSides))
-                outcomeCounts[possibleOutcome] = outcomeCounts[possibleOutcome] + 1;
+            if (numberOfDice > 0)
+            {
+                foreach (int possibleOutcome in GetAllOutcomes(0, numberOfDice, numberOfSides))
+                    outcomeCounts[possibleOutcome] = outcomeCounts[possibleOutcome] + 1;
+            }
 
             //return outcomeCounts.Where(kvp => kvp.Value > 0);
             return outcomeCounts;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="currentTotal"></param>
+        /// <param name="nDice"></param>
+        /// <param name="nSides"></param>
+        /// <returns></returns>
         private static IEnumerable<int> GetAllOutcomes(int currentTotal, int nDice, int nSides)
         {
-            if (nDice == 0) yield return currentTotal;
+            if (nDice == 0)
+                yield return currentTotal;
             else
             {
                 for (int i = 1; i <= nSides; i++)
