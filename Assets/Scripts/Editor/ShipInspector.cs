@@ -9,12 +9,12 @@ namespace Battlestations
     public class ShipInspector : Editor
     {
         private Ship ship;
-        private SerializedObject serializedShip;
+        //private SerializedObject serializedShip;
 
         public void OnEnable()
         {
             ship = (Ship)target;
-            serializedShip = new SerializedObject(target);
+            //serializedShip = new SerializedObject(target);
         }
 
         public override void OnInspectorGUI()
@@ -23,9 +23,9 @@ namespace Battlestations
 
             //DropAreaGUI();
 
-            var modulesProperty = serializedShip.FindProperty("Modules");
+            //var modulesProperty = serializedShip.FindProperty("Modules");
 
-            float size = (Screen.width - 18) / 7.0f;
+            float size = (Screen.width - 20) / 7.0f;
 
             // loop backwards in order to display it in the same order it is used in a scene ([0,0] at bottom left) 
             for (int y = ship.ySize - 1; y >= 0; y--)
@@ -54,7 +54,11 @@ namespace Battlestations
             Event evt = Event.current;
             Rect dropArea = GUILayoutUtility.GetRect(width, height);
             GUI.Box(dropArea, text);
-            GUI.DrawTexture(dropArea, texture);
+
+            if (texture != null)
+            {
+                GUI.DrawTexture(dropArea, texture);
+            }
 
             switch (evt.type)
             {
