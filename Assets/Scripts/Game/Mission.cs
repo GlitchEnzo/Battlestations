@@ -23,6 +23,11 @@
 
         // TODO: Space map
 
+        public virtual void Assemble()
+        {
+
+        }
+
         public virtual EndMissionState CheckEndOfMission()
         {
             return EndMissionState.MissionInProgress;
