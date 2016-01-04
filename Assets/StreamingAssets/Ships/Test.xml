@@ -1,0 +1,3 @@
+<Ship>
+  <Module name="cannon" position="3,4" rotation="90" />
+</Ship>
