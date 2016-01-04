@@ -77,6 +77,19 @@
 
         }
 
+        public virtual void GeneratePower()
+        {
+            // generate 1 power for each function engine
+            // applied in the order: Helm, Guns, Shields, and then repeat
+        }
+
+        public virtual void EndRound()
+        {
+            // reduce speed by 1
+            // reduce power for  Helm, Guns, & Shields by 1
+            // removed all "used" modifier for modules
+        }
+
         /// <summary>
         /// 
         /// </summary>

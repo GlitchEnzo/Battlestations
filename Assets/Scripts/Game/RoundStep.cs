@@ -1,5 +1,8 @@
 ﻿namespace Battlestations
 { 
+    /// <summary>
+    /// Page 62.
+    /// </summary>
     public enum RoundStep
     {
         PowerGeneration,

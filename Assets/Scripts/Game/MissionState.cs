@@ -1,5 +1,8 @@
 ﻿namespace Battlestations
 {
+    /// <summary>
+    /// Page 59. 
+    /// </summary>
     public enum MissionState
     {
         // --------- PRE MISSION ---------------
