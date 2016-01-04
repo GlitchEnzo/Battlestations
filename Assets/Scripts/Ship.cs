@@ -20,11 +20,30 @@
 
         public Species Species = Species.Human;
 
+        public int Size = 3;
+
+        public int Speed;
+
+        public int OutOfControlPenalty;
+
+        public int HelmPower;
+
+        public int GunsPower;
+
+        public int ShieldsPower;
+
+        public int DamageReceived;
+
         //public ModuleArray[] Modules = new ModuleArray[7];
         //public Module[][] Modules = new Module[7][];
         public List<Module> Modules = new List<Module>(49);
         public int xSize = 7;
         public int ySize = 7;
+
+        public float Orientation
+        {
+            get { return transform.eulerAngles.z; }
+        }
 
         public Module this[int x, int y]
         {
@@ -50,7 +69,7 @@
 
         void Start()
         {
-
+            Debug.Log(Dice.Probability(2, 8) * 100 + "%");
         }
 
         void Update()
@@ -85,6 +104,41 @@
 
                 this[x, y] = instance.GetComponent<Module>();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filepath"></param>
+        public void SaveToFile(string filepath)
+        {
+            XDocument shipFile = new XDocument();
+
+            for (int y = 0; y < ySize; y++)
+            {
+                for (int x = 0; x < xSize; x++)
+                {
+
+                }
+            }
+            foreach (var moduleElement in shipFile.Root.Elements())
+            {
+                string name = moduleElement.Attribute("name").Value;
+                string[] position = moduleElement.Attribute("position").Value.Split(',');
+                int x = int.Parse(position[0]);
+                int y = int.Parse(position[1]);
+                float rotation = float.Parse(moduleElement.Attribute("rotation").Value);
+
+                GameObject instance = Instantiate(Resources.Load<GameObject>(name));
+                instance.transform.parent = this.transform;
+                instance.transform.rotation = Quaternion.Euler(0, 0, rotation);
+
+                // TODO: Set position based on the x & y indices.
+
+                this[x, y] = instance.GetComponent<Module>();
+            }
+
+            shipFile.Save(filepath);
         }
     }
 }
