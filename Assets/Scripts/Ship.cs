@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Xml.Linq;
+    using Gamelogic.Grids;
     using UnityEngine;
 
     public class Ship : MonoBehaviour
@@ -39,6 +40,17 @@
         public List<Module> Modules = new List<Module>(49);
         public int xSize = 7;
         public int ySize = 7;
+
+        /// <summary>
+        /// True if the ship is currently in orbit around the point defined in <see cref="OrbitalPoint"/>.
+        /// False if not in orbit.
+        /// </summary>
+        public bool InOrbit;
+
+        /// <summary>
+        /// The point that the ship is orbiting.  If <see cref="InOrbit"/> is false, this point is meaningless.
+        /// </summary>
+        public FlatHexPoint OrbitalPoint;
 
         public float Orientation
         {

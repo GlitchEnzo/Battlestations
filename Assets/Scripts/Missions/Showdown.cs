@@ -32,7 +32,7 @@
         public override void ResolveEndOfMission()
         {
             // Success = enemy ship destroyed or retreated
-            // Overwhelming = enemy ship captured
+            // Overwhelming = enemy ship captured (all enemies killed)
             // Fail = players all killed or player ship destroyed
 
             base.ResolveEndOfMission();
